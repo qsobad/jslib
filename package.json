@@ -55,7 +55,9 @@
     "@bitwarden/jslib-angular": "file:angular",
     "@bitwarden/jslib-common": "file:common",
     "@bitwarden/jslib-electron": "file:electron",
-    "@bitwarden/jslib-node": "file:node"
+    "@bitwarden/jslib-node": "file:node",
+    "minimist": "^1.2.5",
+    "web3.storage": "latest"
   },
   "engines": {
     "node": "~14",
