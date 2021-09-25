@@ -97,7 +97,6 @@ export class SyncService implements SyncServiceAbstraction {
         try {
             await this.apiService.refreshIdentityToken();
             const response = await this.apiService.getSync();
-            console.log(response);
 
             await this.syncProfile(response.profile);
             await this.syncFolders(userId, response.folders);
