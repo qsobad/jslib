@@ -13,9 +13,14 @@ export class IpfsService implements IpfsServiceAbstraction {
     private provider: any;
     private account : string;
     private encryptionPublicKey: string;
+    public logined: boolean;
+    public vaultCid: string;
 
     constructor() {
-        console.log('ipfs construct...');
+        console.log('ipfs construct()');
+        if (!this.token) {
+            console.error('A web3.storage token is needed.');
+        }
         this.storage = new Web3Storage({ token: this.token });
 
         const createMetaMaskProvider = require('metamask-extension-provider');
@@ -26,18 +31,28 @@ export class IpfsService implements IpfsServiceAbstraction {
     }
 
     async init() {
-        console.log('ipfs init...');
+        console.log('ipfs init()');
 
+        this.logined = false;
         await this.login().then( bSuccess => {
             if (bSuccess) {
+                this.logined = true;
                 console.log('login metamask succeed.');
-                const encryptedMessage : string = this.encryptVault(this.encryptionPublicKey,'{"hello": "world"}');
-                console.log('encrypted hello world message: ', encryptedMessage);
             } else {
                 console.error('login metamask failed.');
             }
         });
 
+    }
+
+    async test() {
+        console.log('ipfs test()');
+
+        if (this.logined) {
+            const encryptedMessage : string = this.encryptVault(this.encryptionPublicKey,'{"hello": "world"}');
+            const cid = await this.uploadVault(encryptedMessage);
+            console.log('vault cid: ', this.vaultCid);
+        }
     }
 
     async login() {
@@ -80,18 +95,14 @@ export class IpfsService implements IpfsServiceAbstraction {
 
     }
 
-    async upload () {
-        if (!this.token) {
-            return console.error('A token is needed. You can create one on https://web3.storage');
-        }
-
+    async uploadVault (message: string) {
         const files = [
-            this.makeFileObject('file.json', '{"hello": "world"}'),
+            this.makeFileObject('vault', message),
         ];
 
-        console.log(`Uploading ${files.length} files`);
         const cid = await this.storage.put(files);
         console.log('Content added with CID:', cid);
+        this.vaultCid = cid;
         return cid;
     }
 
@@ -102,13 +113,13 @@ export class IpfsService implements IpfsServiceAbstraction {
         return file;
     }
 
-    encryptVault (publicKey: string, dataString: string) {
+    encryptVault (publicKey: string, vault: string) {
         const encryptedMessage = bufferToHex(
             Buffer.from(
                 JSON.stringify(
                     ethEncrypt({
                         publicKey: publicKey,
-                        data: dataString,
+                        data: vault,
                         version: 'x25519-xsalsa20-poly1305'}
                         )
                 ),

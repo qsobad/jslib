@@ -1,4 +1,6 @@
 
 export abstract class IpfsService {
-    upload: () => any;
+    logined: boolean;
+    vaultCid: string;
+    test: () => any;
 }
