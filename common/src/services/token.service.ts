@@ -15,7 +15,7 @@ const Keys = {
 
 export class TokenService implements TokenServiceAbstraction {
     token: string;
-    decodedToken: any;
+    decodedToken: any = {};
     refreshToken: string;
     clientId: string;
     clientSecret: string;
@@ -226,6 +226,7 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     getPremium(): boolean {
+        return false; //no premium
         const decoded = this.decodeToken();
         if (typeof decoded.premium === 'undefined') {
             return false;

@@ -5,4 +5,5 @@ export class AuthResult {
     captchaSiteKey: string = '';
     resetMasterPassword: boolean = false;
     twoFactorProviders: Map<TwoFactorProviderType, { [key: string]: string; }> = null;
+    metamask: boolean = false;
 }
