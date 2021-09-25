@@ -1,4 +1,4 @@
 
 export abstract class IpfsService {
-    test: () => any;
+    upload: () => any;
 }
