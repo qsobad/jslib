@@ -2,8 +2,7 @@ import { Utils } from '../misc/utils';
 import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js';
 import { IpfsService as IpfsServiceAbstraction } from '../abstractions/ipfs.service';
 import {
-    encrypt as ethEncrypt,
-    decrypt as ethDecrypt,
+    encrypt as ethEncrypt
 } from '@metamask/eth-sig-util';
 import { bufferToHex } from 'ethereumjs-util';
 
@@ -12,9 +11,8 @@ export class IpfsService implements IpfsServiceAbstraction {
     private storage: Web3Storage;
     private ethutil: any;
     private provider: any;
-    private account : string;
+    public account : string;
     private encryptionPublicKey: string;
-    public logined: boolean;
     public vaultCid: string;
 
     constructor() {
@@ -34,22 +32,21 @@ export class IpfsService implements IpfsServiceAbstraction {
     async init() {
         console.log('ipfs init()');
 
-        this.logined = false;
-        await this.login().then( bSuccess => {
-            if (bSuccess) {
-                this.logined = true;
-                console.log('login metamask succeed.');
-            } else {
-                console.error('login metamask failed.');
-            }
-        });
+        // await this.login().then( bSuccess => {
+        //     if (bSuccess) {
+        //         this.logined = true;
+        //         console.log('login metamask succeed.');
+        //     } else {
+        //         console.error('login metamask failed.');
+        //     }
+        // });
 
     }
 
     async test() {
         console.log('ipfs test()');
 
-        if (this.logined) {
+        if (this.account != null) {
             const cid = await this.saveVault('{"hello": "world"}');
             console.log('files status: ', await this.storage.status(cid));
 
@@ -63,32 +60,16 @@ export class IpfsService implements IpfsServiceAbstraction {
         const bSuccess: boolean = false;
 
         if (this.provider.isMetaMask) {
+            if (this.account != null && this.provider.isConnected()) {
+                return true;
+            }
+
             const accounts = await this.provider.request({method: 'eth_requestAccounts'});
 
             if (this.provider.isConnected()) {
                 this.account = accounts[0];
                 console.log('metamask connected:', this.account);
-
-                try {
-                    const encryptionPublicKey = await this.provider.request({
-                        method: 'eth_getEncryptionPublicKey',
-                        params: [this.account], // you must have access to the specified account
-                    });
-
-                    this.encryptionPublicKey = encryptionPublicKey;
-                    console.log("encryption pubilc key:", this.encryptionPublicKey);
-                    return true;
-
-                } catch (error) {
-                    if (error.code === 4001) {
-                        // EIP-1193 userRejectedRequest error
-                        console.log("We can't encrypt anything without the key.");
-                    } else {
-                        console.error(error);
-                    }
-                    return false;
-                };
-
+                return true;
             } else {
                 return false;
             }
@@ -99,8 +80,34 @@ export class IpfsService implements IpfsServiceAbstraction {
 
     }
 
+    async getPublicKey() {
+        if (this.encryptionPublicKey != null) {
+            return true;
+        };
+
+        try {
+            const encryptionPublicKey = await this.provider.request({
+                method: 'eth_getEncryptionPublicKey',
+                params: [this.account], // you must have access to the specified account
+            });
+
+            this.encryptionPublicKey = encryptionPublicKey;
+            console.log("encryption pubilc key:", this.encryptionPublicKey);
+            return true;
+
+        } catch (error) {
+            if (error.code === 4001) {
+                // EIP-1193 userRejectedRequest error
+                console.log("We can't encrypt anything without the key.");
+            } else {
+                console.error(error);
+            }
+            return false;
+        }
+    }
+
     async saveVault (vault: string) {
-        const message : string = this.encryptVault(this.encryptionPublicKey, vault);
+        const message : string = await this.encryptVault(this.encryptionPublicKey, vault);
 
         const files = [
             this.makeFileObject('vault', message),
@@ -137,7 +144,10 @@ export class IpfsService implements IpfsServiceAbstraction {
         return file;
     }
 
-    encryptVault (publicKey: string, vault: string) {
+    async encryptVault (publicKey: string, vault: string) {
+        if (this.encryptionPublicKey == null) {
+            await this.getPublicKey();
+        }
         const encryptedMessage = bufferToHex(
             Buffer.from(
                 JSON.stringify(
@@ -154,6 +164,10 @@ export class IpfsService implements IpfsServiceAbstraction {
     }
 
     async decryptVault (encryptedVault: string) {
+        if (this.account == null) {
+            await this.login();
+        }
+
         const message = await this.provider.request({
             method: 'eth_decrypt',
             params: [encryptedVault, this.account],

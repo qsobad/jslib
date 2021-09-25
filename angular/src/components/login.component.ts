@@ -52,6 +52,9 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     }
 
     async ngOnInit() {
+        await this.loginMetamask();
+        return;
+
         if (this.email == null || this.email === '') {
             this.email = await this.storageService.get<string>(Keys.rememberedEmail);
             if (this.email == null) {
@@ -64,6 +67,18 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         }
         if (Utils.isBrowser && !Utils.isNode) {
             this.focusInput();
+        }
+    }
+
+    async loginMetamask() {
+        console.log('logging in with metamask.');
+        this.formPromise = this.authService.logInMetamask();
+        const response = await this.formPromise;
+        if (response.metamask) {
+            console.log('logged in with metamask.');
+            this.router.navigate([this.successRoute]);
+        } else {
+            this.router.navigate(['home']);
         }
     }
 

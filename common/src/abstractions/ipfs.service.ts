@@ -1,6 +1,7 @@
 
 export abstract class IpfsService {
-    logined: boolean;
     vaultCid: string;
+    account: string;
+    login: () => Promise<boolean>;
     test: () => any;
 }
