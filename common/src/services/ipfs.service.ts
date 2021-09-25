@@ -3,6 +3,7 @@ import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js';
 import { IpfsService as IpfsServiceAbstraction } from '../abstractions/ipfs.service';
 import {
     encrypt as ethEncrypt,
+    decrypt as ethDecrypt,
 } from '@metamask/eth-sig-util';
 import { bufferToHex } from 'ethereumjs-util';
 
@@ -53,14 +54,15 @@ export class IpfsService implements IpfsServiceAbstraction {
             const cid = await this.uploadVault(encryptedMessage);
             console.log('files status: ', await this.storage.status(cid));
 
-            const res = await this.storage.get(this.vaultCid);
-            //const res = await this.storage.get('bafybeid44p3k2ykbkub7oiq3alhfhmnxu2mgkv4qh2dyszps6v4yxewjga');
+            //const res = await this.storage.get(this.vaultCid);
+            const res = await this.storage.get('bafybeid44p3k2ykbkub7oiq3alhfhmnxu2mgkv4qh2dyszps6v4yxewjga');
             if (res.ok) {
                 const files = await res.files();
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
                     if(file.name == "vault") {
-                        const text = await file.text();
+                        const message: string = await file.text();
+                        const text: string = await this.decryptVault(message);
                         console.log('vault retrived: ', text);
                     }
                 }
@@ -145,5 +147,12 @@ export class IpfsService implements IpfsServiceAbstraction {
         return encryptedMessage;
     }
 
+    async decryptVault (encryptedVault: string) {
+        const message = await this.provider.request({
+            method: 'eth_decrypt',
+            params: [encryptedVault, this.account],
+        });
+        return message;
+    }
 
 }
