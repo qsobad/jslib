@@ -51,7 +51,23 @@ export class IpfsService implements IpfsServiceAbstraction {
         if (this.logined) {
             const encryptedMessage : string = this.encryptVault(this.encryptionPublicKey,'{"hello": "world"}');
             const cid = await this.uploadVault(encryptedMessage);
-            console.log('vault cid: ', this.vaultCid);
+            console.log('files status: ', await this.storage.status(cid));
+
+            const res = await this.storage.get(this.vaultCid);
+            //const res = await this.storage.get('bafybeid44p3k2ykbkub7oiq3alhfhmnxu2mgkv4qh2dyszps6v4yxewjga');
+            if (res.ok) {
+                const files = await res.files();
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    if(file.name == "vault") {
+                        const text = await file.text();
+                        console.log('vault retrived: ', text);
+                    }
+                }
+            } else {
+                console.error('cannot get files with cid: ', this.vaultCid);
+            }
+
         }
     }
 
