@@ -135,7 +135,6 @@ export class AuthService implements AuthServiceAbstraction {
     }
 
     async logInMetamask(): Promise<AuthResult> {
-        console.log('login metamask.');
         this.selectedTwoFactorProviderType = null;
         return await this.logInHelper(null, null, null, 'metamask', null, null, null, null,
             null, null, null, null);
@@ -288,19 +287,16 @@ export class AuthService implements AuthServiceAbstraction {
         const appId = await this.appIdService.getAppId();
         const deviceRequest = new DeviceRequest(appId, this.platformUtilsService);
 
-        console.log('loginhelper: ', code);
         if (code === 'metamask') {
             this.metamask = true;
             this.clearState();
             const result = new AuthResult();
 
             const loginState : boolean = await this.ipfsService.login();
-            console.log('login state: ', loginState);
             if (loginState) {
                 result.metamask = true;
                 await this.tokenService.setTokens('metamask', 'metamask', ['metamask', 'metamask']);
                 await this.userService.setInformation(this.ipfsService.account, this.ipfsService.account,null, null);
-                console.log(this.userService.isAuthenticated());
                 this.messagingService.send('loggedIn');
             }
             return result;

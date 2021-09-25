@@ -1,4 +1,5 @@
 import { Utils } from '../misc/utils';
+import { BrowserApi } from '../../../../src/browser/browserApi';
 import { Web3Storage } from 'web3.storage/dist/bundle.esm.min.js';
 import { IpfsService as IpfsServiceAbstraction } from '../abstractions/ipfs.service';
 import {
@@ -11,21 +12,26 @@ export class IpfsService implements IpfsServiceAbstraction {
     private storage: Web3Storage;
     private ethutil: any;
     private provider: any;
-    public account : string;
+    private account : string;
     private encryptionPublicKey: string;
+    public loggedin: boolean;
     public vaultCid: string;
 
     constructor() {
         console.log('ipfs construct()');
-        if (!this.token) {
-            console.error('A web3.storage token is needed.');
-        }
+
         this.storage = new Web3Storage({ token: this.token });
 
         const createMetaMaskProvider = require('metamask-extension-provider');
         this.provider = createMetaMaskProvider();
+        this.provider.on('error', (error) => {
+            console.error(error);
+            BrowserApi.reloadExtension(null);
+        });
 
         this.ethutil = require('ethereumjs-util');
+
+        this.loggedin = false;
 
     }
 
@@ -72,23 +78,24 @@ export class IpfsService implements IpfsServiceAbstraction {
 
                 await this.getPublicKey();
                 if (this.encryptionPublicKey != null) {
+                    this.loggedin = true;
                     return true;
-                } else {
-                    return false;
                 }
-            } else {
-                return false;
             }
 
-        } else {
-            return false;
         }
+
+        this.account = null;
+        this.encryptionPublicKey = null;
+        this.loggedin = false;
+        return false;
 
     }
 
     logout() {
         this.account = null;
         this.encryptionPublicKey = null;
+        this.loggedin = false;
         console.log('metamask logged out');
     }
 

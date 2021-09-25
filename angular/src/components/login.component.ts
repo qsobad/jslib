@@ -78,6 +78,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
             console.log('logged in with metamask.');
             this.router.navigate([this.successRoute]);
         } else {
+            console.error('login metamask failed.');
             this.router.navigate(['home']);
         }
     }
