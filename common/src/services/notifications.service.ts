@@ -36,7 +36,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
                 return;
             }
 
-            this.init();
+            //this.init();
         });
     }
 

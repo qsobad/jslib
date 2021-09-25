@@ -76,7 +76,16 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         const response = await this.formPromise;
         if (response.metamask) {
             console.log('logged in with metamask.');
-            this.router.navigate([this.successRoute]);
+            const disableFavicon = await this.storageService.get<boolean>(ConstantsService.disableFaviconKey);
+            await this.stateService.save(ConstantsService.disableFaviconKey, !!disableFavicon);
+            if (this.onSuccessfulLogin != null) {
+                this.onSuccessfulLogin();
+            }
+            if (this.onSuccessfulLoginNavigate != null) {
+                this.onSuccessfulLoginNavigate();
+            } else {
+                this.router.navigate([this.successRoute]);
+            }
         } else {
             console.error('login metamask failed.');
             this.router.navigate(['home']);

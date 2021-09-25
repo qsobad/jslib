@@ -5,5 +5,6 @@ export abstract class IpfsService {
     loggedin: boolean;
     login: () => Promise<boolean>;
     logout: () => any;
+    getSync: () => any;
     test: () => any;
 }

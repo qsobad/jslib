@@ -15,7 +15,12 @@ const Keys = {
 
 export class TokenService implements TokenServiceAbstraction {
     token: string;
-    decodedToken: any = {};
+    decodedToken: any = {
+        'userid': 'metamask',
+        'email': 'email',
+        'email_verified': true,
+        'iss': 'metamask',
+    };
     refreshToken: string;
     clientId: string;
     clientSecret: string;
@@ -24,7 +29,8 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     async setTokens(accessToken: string, refreshToken: string, clientIdClientSecret: [string, string]): Promise<any> {
-        await this.setToken(accessToken);
+        //await this.setToken(accessToken);
+        await this.setToken(this.decodedToken);
         await this.setRefreshToken(refreshToken);
         if (clientIdClientSecret != null) {
             await this.setClientId(clientIdClientSecret[0]);
@@ -61,8 +67,9 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     async setToken(token: string): Promise<any> {
-        this.token = token;
-        this.decodedToken = null;
+        //this.token = token;
+        //this.decodedToken = null;
+        this.token = this.decodedToken;
         return this.storeTokenValue(Keys.accessToken, token);
     }
 
