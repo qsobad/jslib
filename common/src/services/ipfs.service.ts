@@ -50,26 +50,12 @@ export class IpfsService implements IpfsServiceAbstraction {
         console.log('ipfs test()');
 
         if (this.logined) {
-            const encryptedMessage : string = this.encryptVault(this.encryptionPublicKey,'{"hello": "world"}');
-            const cid = await this.uploadVault(encryptedMessage);
+            const cid = await this.saveVault('{"hello": "world"}');
             console.log('files status: ', await this.storage.status(cid));
 
-            //const res = await this.storage.get(this.vaultCid);
-            const res = await this.storage.get('bafybeid44p3k2ykbkub7oiq3alhfhmnxu2mgkv4qh2dyszps6v4yxewjga');
-            if (res.ok) {
-                const files = await res.files();
-                for (let i = 0; i < files.length; i++) {
-                    let file = files[i];
-                    if(file.name == "vault") {
-                        const message: string = await file.text();
-                        const text: string = await this.decryptVault(message);
-                        console.log('vault retrived: ', text);
-                    }
-                }
-            } else {
-                console.error('cannot get files with cid: ', this.vaultCid);
-            }
-
+            //const vault = await this.getVault(this.vaultCid);
+            const vault = await this.getVault('bafybeid44p3k2ykbkub7oiq3alhfhmnxu2mgkv4qh2dyszps6v4yxewjga');
+            console.log('vault retrived: ', vault);
         }
     }
 
@@ -113,7 +99,9 @@ export class IpfsService implements IpfsServiceAbstraction {
 
     }
 
-    async uploadVault (message: string) {
+    async saveVault (vault: string) {
+        const message : string = this.encryptVault(this.encryptionPublicKey, vault);
+
         const files = [
             this.makeFileObject('vault', message),
         ];
@@ -122,6 +110,24 @@ export class IpfsService implements IpfsServiceAbstraction {
         console.log('Content added with CID:', cid);
         this.vaultCid = cid;
         return cid;
+    }
+
+    async getVault (cid: string) {
+        const res = await this.storage.get(cid);
+        if (res.ok) {
+            const files = await res.files();
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                if(file.name === 'vault') {
+                    const message: string = await file.text();
+                    const vault: string = await this.decryptVault(message);
+                    return vault;
+                }
+            }
+        } else {
+            console.error('cannot get files with cid: ', this.vaultCid);
+            return;
+        }
     }
 
     makeFileObject (objName: string, objString: string) {
