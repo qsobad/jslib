@@ -10,6 +10,7 @@ import { SettingsService } from '../abstractions/settings.service';
 import { StorageService } from '../abstractions/storage.service';
 import { SyncService as SyncServiceAbstraction } from '../abstractions/sync.service';
 import { UserService } from '../abstractions/user.service';
+import { IpfsService } from '../abstractions/ipfs.service';
 
 import { CipherData } from '../models/data/cipherData';
 import { CollectionData } from '../models/data/collectionData';
@@ -44,7 +45,7 @@ export class SyncService implements SyncServiceAbstraction {
         private cipherService: CipherService, private cryptoService: CryptoService,
         private collectionService: CollectionService, private storageService: StorageService,
         private messagingService: MessagingService, private policyService: PolicyService,
-        private sendService: SendService, private logoutCallback: (expired: boolean) => Promise<void>) {
+        private sendService: SendService, private ipfsService: IpfsService, private logoutCallback: (expired: boolean) => Promise<void>) {
     }
 
     async getLastSync(): Promise<Date> {

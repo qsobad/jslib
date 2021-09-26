@@ -47,6 +47,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     // Keys aren't stored for a device that is locked or logged out.
     async isLocked(): Promise<boolean> {
+        return false; //never locked
         // Handle never lock startup situation
         if (await this.cryptoService.hasKeyStored('auto') && !this.everBeenUnlocked) {
             await this.cryptoService.getKey('auto');

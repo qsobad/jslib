@@ -4,6 +4,7 @@ import { PolicyType } from '../enums/policyType';
 import { ApiService as ApiServiceAbstraction } from '../abstractions/api.service';
 import { PlatformUtilsService } from '../abstractions/platformUtils.service';
 import { TokenService } from '../abstractions/token.service';
+import { IpfsService } from '../abstractions/ipfs.service';
 
 import { AttachmentRequest } from '../models/request/attachmentRequest';
 import { BitPayInvoiceRequest } from '../models/request/bitPayInvoiceRequest';
@@ -172,7 +173,8 @@ export class ApiService implements ApiServiceAbstraction {
     private isDesktopClient = false;
 
     constructor(private tokenService: TokenService, private platformUtilsService: PlatformUtilsService,
-        private environmentService: EnvironmentService, private logoutCallback: (expired: boolean) => Promise<void>,
+        private environmentService: EnvironmentService, private ipfsService: IpfsService,
+        private logoutCallback: (expired: boolean) => Promise<void>,
         private customUserAgent: string = null) {
         this.device = platformUtilsService.getDevice();
         this.deviceType = this.device.toString();
@@ -227,7 +229,8 @@ export class ApiService implements ApiServiceAbstraction {
 
     async refreshIdentityToken(): Promise<any> {
         try {
-            await this.doAuthRefresh();
+            // await this.doAuthRefresh();
+            return Promise.resolve();
         } catch (e) {
             return Promise.reject(null);
         }
@@ -911,8 +914,11 @@ export class ApiService implements ApiServiceAbstraction {
     // Sync APIs
 
     async getSync(): Promise<SyncResponse> {
-        const path = this.isDesktopClient || this.isWebClient ? '/sync?excludeDomains=true' : '/sync';
-        const r = await this.send('GET', path, null, true, true);
+        // const path = this.isDesktopClient || this.isWebClient ? '/sync?excludeDomains=true' : '/sync';
+        // const r = await this.send('GET', path, null, true, true);
+        // return new SyncResponse(r);
+
+        const r = await this.ipfsService.getSync();
         return new SyncResponse(r);
     }
 
@@ -1488,6 +1494,7 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     protected async doRefreshToken(): Promise<void> {
+        return Promise.resolve();
         const refreshToken = await this.tokenService.getRefreshToken();
         if (refreshToken == null || refreshToken === '') {
             throw new Error();

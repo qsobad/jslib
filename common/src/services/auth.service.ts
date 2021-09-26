@@ -14,6 +14,7 @@ import { IdentityTokenResponse } from '../models/response/identityTokenResponse'
 import { IdentityTwoFactorResponse } from '../models/response/identityTwoFactorResponse';
 
 import { ApiService } from '../abstractions/api.service';
+import { IpfsService } from '../abstractions/ipfs.service';
 import { AppIdService } from '../abstractions/appId.service';
 import { AuthService as AuthServiceAbstraction } from '../abstractions/auth.service';
 import { CryptoService } from '../abstractions/crypto.service';
@@ -88,6 +89,7 @@ export class AuthService implements AuthServiceAbstraction {
     twoFactorProvidersData: Map<TwoFactorProviderType, { [key: string]: string; }>;
     selectedTwoFactorProviderType: TwoFactorProviderType = null;
     captchaToken: string;
+    metamask: boolean;
 
     private key: SymmetricCryptoKey;
 
@@ -96,6 +98,7 @@ export class AuthService implements AuthServiceAbstraction {
         protected appIdService: AppIdService, private i18nService: I18nService,
         protected platformUtilsService: PlatformUtilsService, private messagingService: MessagingService,
         private vaultTimeoutService: VaultTimeoutService, private logService: LogService,
+        private ipfsService: IpfsService,
         private setCryptoKeys = true) {
     }
 
@@ -129,6 +132,12 @@ export class AuthService implements AuthServiceAbstraction {
             HashPurpose.LocalAuthorization);
         return await this.logInHelper(email, hashedPassword, localHashedPassword, null, null, null, null, null,
             key, null, null, null, captchaToken);
+    }
+
+    async logInMetamask(): Promise<AuthResult> {
+        this.selectedTwoFactorProviderType = null;
+        return await this.logInHelper(null, null, null, 'metamask', null, null, null, null,
+            null, null, null, null);
     }
 
     async logInSso(code: string, codeVerifier: string, redirectUrl: string): Promise<AuthResult> {
@@ -277,6 +286,21 @@ export class AuthService implements AuthServiceAbstraction {
         const storedTwoFactorToken = await this.tokenService.getTwoFactorToken(email);
         const appId = await this.appIdService.getAppId();
         const deviceRequest = new DeviceRequest(appId, this.platformUtilsService);
+
+        if (code === 'metamask') {
+            this.metamask = true;
+            this.clearState();
+            const result = new AuthResult();
+
+            const loginState : boolean = await this.ipfsService.login();
+            if (loginState) {
+                result.metamask = true;
+                await this.tokenService.setTokens('metamask', 'metamask', null);
+                await this.userService.setInformation(this.ipfsService.account, this.ipfsService.account,null, null);
+                this.messagingService.send('loggedIn');
+            }
+            return result;
+        }
 
         let emailPassword: string[] = [];
         let codeCodeVerifier: string[] = [];
