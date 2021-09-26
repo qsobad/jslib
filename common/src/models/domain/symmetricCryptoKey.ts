@@ -41,6 +41,9 @@ export class SymmetricCryptoKey {
         } else if (encType === EncryptionType.AesCbc256_HmacSha256_B64 && key.byteLength === 64) {
             this.encKey = key.slice(0, 32);
             this.macKey = key.slice(32, 64);
+        } else if (encType === EncryptionType.Plain) {
+            this.encKey = key;
+            this.macKey = null;
         } else {
             throw new Error('Unsupported encType/key length.');
         }

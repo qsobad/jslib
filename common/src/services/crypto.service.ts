@@ -336,6 +336,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
 
     async hasKey(): Promise<boolean> {
+        //return true; // mod for metamask
         return this.hasKeyInMemory() || await this.hasKeyStored('auto') || await this.hasKeyStored('biometric');
     }
 
@@ -348,6 +349,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
 
     async hasEncKey(): Promise<boolean> {
+        //return true;
         const encKey = await this.storageService.get<string>(Keys.encKey);
         return encKey != null;
     }
@@ -436,6 +438,12 @@ export class CryptoService implements CryptoServiceAbstraction {
             throw new Error('Unknown Kdf.');
         }
         return new SymmetricCryptoKey(key);
+    }
+
+    async makePlainKey(password: string): Promise<SymmetricCryptoKey> {
+        let key: ArrayBuffer = null;
+        key = await this.cryptoFunctionService.plain(password);
+        return new SymmetricCryptoKey(key, EncryptionType.Plain);
     }
 
     async makeKeyFromPin(pin: string, salt: string, kdf: KdfType, kdfIterations: number,
@@ -756,6 +764,10 @@ export class CryptoService implements CryptoServiceAbstraction {
 
     private async aesDecryptToUtf8(encType: EncryptionType, data: string, iv: string, mac: string,
         key: SymmetricCryptoKey): Promise<string> {
+        if (encType === EncryptionType.Plain) {
+            return data;
+        }
+
         const keyForEnc = await this.getKeyForEncryption(key);
         const theKey = this.resolveLegacyKey(encType, keyForEnc);
 

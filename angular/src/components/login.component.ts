@@ -75,7 +75,6 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         this.formPromise = this.authService.logInMetamask();
         const response = await this.formPromise;
         if (response.metamask) {
-            console.log('logged in with metamask.');
             const disableFavicon = await this.storageService.get<boolean>(ConstantsService.disableFaviconKey);
             await this.stateService.save(ConstantsService.disableFaviconKey, !!disableFavicon);
             if (this.onSuccessfulLogin != null) {

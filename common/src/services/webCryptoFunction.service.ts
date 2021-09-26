@@ -23,6 +23,10 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
             (ua.indexOf(' Version/10.') > -1 || ua.indexOf(' Version/9.') > -1);
     }
 
+    async plain(password: string): Promise<ArrayBuffer> {
+        return this.toBuf(password);
+    }
+
     async pbkdf2(password: string | ArrayBuffer, salt: string | ArrayBuffer, algorithm: 'sha256' | 'sha512',
         iterations: number): Promise<ArrayBuffer> {
         if (this.isIE || this.isOldSafari) {

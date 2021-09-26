@@ -1,6 +1,7 @@
 import { StorageService } from '../abstractions/storage.service';
 import { TokenService } from '../abstractions/token.service';
 import { UserService as UserServiceAbstraction } from '../abstractions/user.service';
+import { IpfsService } from '../abstractions/ipfs.service';
 
 import { OrganizationData } from '../models/data/organizationData';
 import { Organization } from '../models/domain/organization';
@@ -30,7 +31,7 @@ export class UserService implements UserServiceAbstraction {
     private emailVerified: boolean;
     private forcePasswordReset: boolean;
 
-    constructor(private tokenService: TokenService, private storageService: StorageService) { }
+    constructor(private tokenService: TokenService, private storageService: StorageService, private ipfsService: IpfsService) { }
 
     async setInformation(userId: string, email: string, kdf: KdfType, kdfIterations: number): Promise<any> {
         this.email = email;
@@ -126,6 +127,7 @@ export class UserService implements UserServiceAbstraction {
     }
 
     async isAuthenticated(): Promise<boolean> {
+        return this.ipfsService.loggedin;
         const token = await this.tokenService.getToken();
         if (token == null) {
             return false;

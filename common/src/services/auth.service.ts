@@ -295,6 +295,8 @@ export class AuthService implements AuthServiceAbstraction {
             const loginState : boolean = await this.ipfsService.login();
             if (loginState) {
                 result.metamask = true;
+                const key = await this.cryptoService.makePlainKey('metamask');
+                await this.cryptoService.setKey(key);
                 await this.tokenService.setTokens('metamask', 'metamask', null);
                 await this.userService.setInformation(this.ipfsService.account, this.ipfsService.account,null, null);
                 this.messagingService.send('loggedIn');

@@ -36,11 +36,12 @@ export class NotificationsService implements NotificationsServiceAbstraction {
                 return;
             }
 
-            //this.init();
+            this.init();
         });
     }
 
     async init(): Promise<void> {
+        return;
         this.inited = false;
         this.url = this.environmentService.getNotificationsUrl();
 

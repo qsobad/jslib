@@ -17,7 +17,7 @@ export class TokenService implements TokenServiceAbstraction {
     token: string;
     decodedToken: any = {
         'userid': 'metamask',
-        'email': 'email',
+        'email': 'metamask',
         'email_verified': true,
         'iss': 'metamask',
     };

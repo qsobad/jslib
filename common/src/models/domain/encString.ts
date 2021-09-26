@@ -60,6 +60,13 @@ export class EncString {
         }
 
         switch (this.encryptionType) {
+            case EncryptionType.Plain:
+                if (encPieces.length !== 1) {
+                    return;
+                }
+
+                this.data = encPieces[0];
+                break;
             case EncryptionType.AesCbc128_HmacSha256_B64:
             case EncryptionType.AesCbc256_HmacSha256_B64:
                 if (encPieces.length !== 3) {

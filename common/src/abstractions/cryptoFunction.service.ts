@@ -2,6 +2,7 @@ import { DecryptParameters } from '../models/domain/decryptParameters';
 import { SymmetricCryptoKey } from '../models/domain/symmetricCryptoKey';
 
 export abstract class CryptoFunctionService {
+    plain: (password: string) => Promise<ArrayBuffer>;
     pbkdf2: (password: string | ArrayBuffer, salt: string | ArrayBuffer, algorithm: 'sha256' | 'sha512',
         iterations: number) => Promise<ArrayBuffer>;
     hkdf: (ikm: ArrayBuffer, salt: string | ArrayBuffer, info: string | ArrayBuffer,
