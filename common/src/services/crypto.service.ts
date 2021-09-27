@@ -173,6 +173,10 @@ export class CryptoService implements CryptoServiceAbstraction {
 
     @sequentialize(() => 'getEncKey')
     async getEncKey(key: SymmetricCryptoKey = null): Promise<SymmetricCryptoKey> {
+        this.encKey = await this.makePlainKey('metamask');
+        //this.encKey = await this.makeEncKey(key);
+        return this.encKey;
+
         if (this.encKey != null) {
             return this.encKey;
         }
@@ -523,7 +527,7 @@ export class CryptoService implements CryptoServiceAbstraction {
             plainBuf = plainValue;
         }
 
-        const encObj = await this.aesEncrypt(plainBuf, key);
+        const encObj = await this.plainEncrypt(plainBuf, key);
         const iv = Utils.fromBufferToB64(encObj.iv);
         const data = Utils.fromBufferToB64(encObj.data);
         const mac = encObj.mac != null ? Utils.fromBufferToB64(encObj.mac) : null;
@@ -744,6 +748,23 @@ export class CryptoService implements CryptoServiceAbstraction {
 
     protected retrieveKeyFromStorage(keySuffix: KeySuffixOptions) {
         return this.secureStorageService.get<string>(Keys.key, { keySuffix: keySuffix });
+    }
+
+    private async plainEncrypt(data: ArrayBuffer, key: SymmetricCryptoKey): Promise<EncryptedObject> {
+        console.log('plainEncrypt::key: ', key);
+        const obj = new EncryptedObject();
+        obj.key = await this.getKeyForEncryption(key);
+        obj.iv = await this.cryptoFunctionService.randomBytes(16);
+        obj.data = data;
+
+        if (obj.key.macKey != null) {
+            const macData = new Uint8Array(obj.iv.byteLength + obj.data.byteLength);
+            macData.set(new Uint8Array(obj.iv), 0);
+            macData.set(new Uint8Array(obj.data), obj.iv.byteLength);
+            obj.mac = await this.cryptoFunctionService.hmac(macData.buffer, obj.key.macKey, 'sha256');
+        }
+
+        return obj;
     }
 
     private async aesEncrypt(data: ArrayBuffer, key: SymmetricCryptoKey): Promise<EncryptedObject> {

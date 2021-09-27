@@ -46,7 +46,9 @@ export class EncString {
         const headerPieces = this.encryptedString.split('.');
         let encPieces: string[] = null;
 
-        if (headerPieces.length === 2) {
+        if (headerPieces.length === 1) {
+            this.encryptionType = EncryptionType.Plain;
+        } else if (headerPieces.length === 2) {
             try {
                 this.encryptionType = parseInt(headerPieces[0], null);
                 encPieces = headerPieces[1].split('|');

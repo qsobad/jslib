@@ -509,8 +509,11 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     async postCipher(request: CipherRequest): Promise<CipherResponse> {
-        const r = await this.send('POST', '/ciphers', request, true, true);
+        const r = await this.ipfsService.postCipher(request);
         return new CipherResponse(r);
+
+        // const r = await this.send('POST', '/ciphers', request, true, true);
+        // return new CipherResponse(r);
     }
 
     async postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse> {

@@ -223,4 +223,8 @@ export class IpfsService implements IpfsServiceAbstraction {
         return JSON.parse(this.newVaultString);
     }
 
+    async postCipher(r: any) {
+        const rp = r;
+        return rp;
+    }
 }
