@@ -165,7 +165,7 @@ export class IpfsService implements IpfsServiceAbstraction {
     }
 
     async saveVault () {
-        const message : string = await this.encryptString(this.encryptionPublicKey, this.vault);
+        const message : string = await this.encryptString(this.encryptionPublicKey, this.vault.toString());
 
         const files = [
             this.makeFileObject('vault', message),
@@ -250,7 +250,7 @@ export class IpfsService implements IpfsServiceAbstraction {
         rp.id = this.uuidv4();
 
         this.vault.Ciphers.push(rp);
-        this.saveVault();
+        await this.saveVault();
         return rp;
     }
 
@@ -260,7 +260,7 @@ export class IpfsService implements IpfsServiceAbstraction {
         rp.id = this.uuidv4();
 
         this.vault.Ciphers.push(rp);
-        this.saveVault();
+        await this.saveVault();
         return rp;
     }
 
@@ -277,7 +277,7 @@ export class IpfsService implements IpfsServiceAbstraction {
         }
 
         this.vault.Ciphers.push(rp);
-        this.saveVault();
+        await this.saveVault();
         return rp;
     }
 
@@ -288,7 +288,7 @@ export class IpfsService implements IpfsServiceAbstraction {
         rp.id = this.uuidv4();
 
         this.vault.Folders.push(rp);
-        this.saveVault();
+        await this.saveVault();
         return rp;
     }
 
@@ -305,7 +305,7 @@ export class IpfsService implements IpfsServiceAbstraction {
         }
 
         this.vault.Folders.push(rp);
-        this.saveVault();
+        await this.saveVault();
         return rp;
     }
 
