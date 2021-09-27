@@ -559,6 +559,7 @@ export class CipherService implements CipherServiceAbstraction {
 
         const userId = await this.userService.getUserId();
         const data = new CipherData(response, userId, cipher.collectionIds);
+        // console.log(data);
         await this.upsert(data);
     }
 

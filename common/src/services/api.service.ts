@@ -406,13 +406,19 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     async postFolder(request: FolderRequest): Promise<FolderResponse> {
-        const r = await this.send('POST', '/folders', request, true, true);
+        const r = await this.ipfsService.postFolder(request);
         return new FolderResponse(r);
+
+        // const r = await this.send('POST', '/folders', request, true, true);
+        // return new FolderResponse(r);
     }
 
     async putFolder(id: string, request: FolderRequest): Promise<FolderResponse> {
-        const r = await this.send('PUT', '/folders/' + id, request, true, true);
+        const r = await this.ipfsService.putFolder(id, request);
         return new FolderResponse(r);
+
+        // const r = await this.send('PUT', '/folders/' + id, request, true, true);
+        // return new FolderResponse(r);
     }
 
     deleteFolder(id: string): Promise<any> {
@@ -517,8 +523,11 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     async postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse> {
-        const r = await this.send('POST', '/ciphers/create', request, true, true);
+        const r = await this.ipfsService.postCipherCreate(request);
         return new CipherResponse(r);
+
+        // const r = await this.send('POST', '/ciphers/create', request, true, true);
+        // return new CipherResponse(r);
     }
 
     async postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse> {
@@ -527,8 +536,11 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     async putCipher(id: string, request: CipherRequest): Promise<CipherResponse> {
-        const r = await this.send('PUT', '/ciphers/' + id, request, true, true);
+        const r = await this.ipfsService.putCipher(id, request);
         return new CipherResponse(r);
+
+        // const r = await this.send('PUT', '/ciphers/' + id, request, true, true);
+        // return new CipherResponse(r);
     }
 
     async putCipherAdmin(id: string, request: CipherRequest): Promise<CipherResponse> {

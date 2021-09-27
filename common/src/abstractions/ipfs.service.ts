@@ -8,4 +8,8 @@ export abstract class IpfsService {
     logout: () => any;
     getSync: () => any;
     postCipher: (r: any) => any;
+    postCipherCreate: (r: any) => any;
+    putCipher: (id: string, r: any) => any;
+    postFolder: (r: any) => any;
+    putFolder: (id: string, r: any) => any;
 }

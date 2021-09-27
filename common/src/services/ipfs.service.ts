@@ -55,6 +55,15 @@ export class IpfsService implements IpfsServiceAbstraction {
 
     }
 
+    /* Utils */
+
+    uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
     async test() {
         console.log('ipfs test()');
 
@@ -72,7 +81,15 @@ export class IpfsService implements IpfsServiceAbstraction {
         }
     }
 
+    /* Methods */
+
     async login() {
+        // for testing
+        // this.account = 'test';
+        // this.encryptionPublicKey = 'test';
+        // this.loggedin = true;
+        // return true;
+
         const bSuccess: boolean = false;
 
         if (this.provider.isMetaMask) {
@@ -219,12 +236,77 @@ export class IpfsService implements IpfsServiceAbstraction {
         return message;
     }
 
+    /* APIs */
+
     async getSync() {
-        return JSON.parse(this.newVaultString);
+        console.log('ipfs.getSync');
+        return this.vault;
+        // return await this.getVault();
     }
 
     async postCipher(r: any) {
+        console.log('ipfs.postCipher: ', r);
         const rp = r;
+        rp.id = this.uuidv4();
+
+        this.vault.Ciphers.push(rp);
+        this.saveVault();
         return rp;
     }
+
+    async postCipherCreate(r: any) {
+        console.log('ipfs.postCipherCreate: ', r);
+        const rp = r;
+        rp.id = this.uuidv4();
+
+        this.vault.Ciphers.push(rp);
+        this.saveVault();
+        return rp;
+    }
+
+    async putCipher(id: string, r: any) {
+        console.log('ipfs.putCipher: ', r);
+        const rp = r;
+        rp.id = id;
+
+        let ciphers = this.vault.Ciphers;
+        for (let i = 0; i < ciphers.length; i++) {
+            if(id === ciphers[i].id) {
+                ciphers.pop(i);
+            }
+        }
+
+        this.vault.Ciphers.push(rp);
+        this.saveVault();
+        return rp;
+    }
+
+
+    async postFolder(r: any) {
+        console.log('ipfs.postFolder: ', r);
+        const rp = r;
+        rp.id = this.uuidv4();
+
+        this.vault.Folders.push(rp);
+        this.saveVault();
+        return rp;
+    }
+
+    async putFolder(id: string, r: any) {
+        console.log('ipfs.putFolder: ', r);
+        const rp = r;
+        rp.id = id;
+
+        let folders = this.vault.Folders;
+        for (let i = 0; i < folders.length; i++) {
+            if(id === folders[i].id) {
+                folders.pop(i);
+            }
+        }
+
+        this.vault.Folders.push(rp);
+        this.saveVault();
+        return rp;
+    }
+
 }
