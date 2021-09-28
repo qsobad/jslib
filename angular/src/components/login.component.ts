@@ -71,7 +71,6 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     }
 
     async loginMetamask() {
-        console.log('logging in with metamask.');
         this.formPromise = this.authService.logInMetamask();
         const response = await this.formPromise;
         if (response.metamask) {

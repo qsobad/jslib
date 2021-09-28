@@ -6,6 +6,7 @@ export abstract class IpfsService {
     test: () => any;
     login: () => Promise<boolean>;
     logout: () => any;
+    clearVaultCid: () => any;
     getSync: () => any;
     postCipher: (r: any) => any;
     postCipherCreate: (r: any) => any;
