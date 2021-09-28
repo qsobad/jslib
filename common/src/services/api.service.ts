@@ -548,8 +548,9 @@ export class ApiService implements ApiServiceAbstraction {
         return new CipherResponse(r);
     }
 
-    deleteCipher(id: string): Promise<any> {
-        return this.send('DELETE', '/ciphers/' + id, null, true, false);
+    async deleteCipher(id: string): Promise<any> {
+        return await this.ipfsService.deleteCipher(id);
+        // return this.send('DELETE', '/ciphers/' + id, null, true, false);
     }
 
     deleteCipherAdmin(id: string): Promise<any> {
@@ -601,8 +602,9 @@ export class ApiService implements ApiServiceAbstraction {
         return this.send('POST', '/ciphers/import-organization?organizationId=' + organizationId, request, true, false);
     }
 
-    putDeleteCipher(id: string): Promise<any> {
-        return this.send('PUT', '/ciphers/' + id + '/delete', null, true, false);
+    async putDeleteCipher(id: string): Promise<any> {
+        return await this.ipfsService.putDeleteCipher(id);
+        // return this.send('PUT', '/ciphers/' + id + '/delete', null, true, false);
     }
 
     putDeleteCipherAdmin(id: string): Promise<any> {
@@ -618,8 +620,11 @@ export class ApiService implements ApiServiceAbstraction {
     }
 
     async putRestoreCipher(id: string): Promise<CipherResponse> {
-        const r = await this.send('PUT', '/ciphers/' + id + '/restore', null, true, true);
+        const r = await this.ipfsService.putRestoreCipher(id);
         return new CipherResponse(r);
+
+        // const r = await this.send('PUT', '/ciphers/' + id + '/restore', null, true, true);
+        // return new CipherResponse(r);
     }
 
     async putRestoreCipherAdmin(id: string): Promise<CipherResponse> {

@@ -11,6 +11,9 @@ export abstract class IpfsService {
     postCipher: (r: any) => any;
     postCipherCreate: (r: any) => any;
     putCipher: (id: string, r: any) => any;
+    deleteCipher: (id: string) => Promise<boolean>;
+    putDeleteCipher: (id: string) => Promise<boolean>;
+    putRestoreCipher: (id: string) => any;
     postFolder: (r: any) => any;
     putFolder: (id: string, r: any) => any;
 }

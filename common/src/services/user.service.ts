@@ -61,6 +61,7 @@ export class UserService implements UserServiceAbstraction {
     }
 
     async getUserId(): Promise<string> {
+        // this.userId = this.ipfsService.account;
         if (this.userId == null) {
             this.userId = await this.storageService.get<string>(Keys.userId);
         }

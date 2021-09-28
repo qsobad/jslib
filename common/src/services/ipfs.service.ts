@@ -112,6 +112,7 @@ export class IpfsService implements IpfsServiceAbstraction {
 
         }
 
+        console.log('failed to login! force logout.');
         this.account = null;
         this.encryptionPublicKey = null;
         this.vault = null;
@@ -186,7 +187,7 @@ export class IpfsService implements IpfsServiceAbstraction {
         }
 
         const vault = JSON.stringify(this.vault);
-        console.log('saving vault: ', vault);
+        // console.log('saving vault: ', vault);
         const message : string = await this.encryptString(this.encryptionPublicKey, vault);
 
         const files = [
@@ -203,7 +204,7 @@ export class IpfsService implements IpfsServiceAbstraction {
     async getVault () {
         let res: any;
         const cid = await this.getVaultCid();
-        if (cid) {
+        if (cid != null) {
             console.log('get vault from cid: ', cid);
             const res = await this.storage.get(cid);
             if (res.ok) {
@@ -213,7 +214,7 @@ export class IpfsService implements IpfsServiceAbstraction {
                     if (file.name === 'vault') {
                         const message: string = await file.text();
                         const vaultString: string = await this.decryptString(message);
-                        const vault: object = JSON.parse(vaultString);
+                        const vault: any = JSON.parse(vaultString);
                         console.log(vault);
                         return vault;
                     }
@@ -221,15 +222,23 @@ export class IpfsService implements IpfsServiceAbstraction {
             } else {
                 console.error('cannot get files with res: ', res);
                 alert('IPFS file not ready, please wait and try again.');
+                this.logout();
                 return;
             }
         } else {
-            const vault: object = JSON.parse(this.newVaultString);
-            if (this.account) {
-                this.vault.Profile.username = this.account;
-            }
-            if (this.encryptionPublicKey) {
-                this.vault.Profile.key = this.encryptionPublicKey;
+            let vault: any;
+            console.log('init new vault.');
+            try {
+                vault = JSON.parse(this.newVaultString);
+                console.log(vault);
+                if (this.account) {
+                    vault.Profile.username = this.account;
+                }
+                if (this.encryptionPublicKey) {
+                    vault.Profile.key = this.encryptionPublicKey;
+                }
+            } catch (error) {
+                console.error(error);
             }
             return vault;
         }
@@ -276,8 +285,9 @@ export class IpfsService implements IpfsServiceAbstraction {
     /* APIs */
 
     async getSync() {
-        console.log('ipfs.getSync');
+        console.log('ipfs.getSync: ');
         this.vault = await this.getVault();
+        // console.log(this.vault);
         return this.vault;
     }
 
@@ -318,6 +328,54 @@ export class IpfsService implements IpfsServiceAbstraction {
         return rp;
     }
 
+    async deleteCipher(id: string) {
+        console.log('ipfs.deleteCipher: ', id);
+
+        let bSuccess: boolean = false;
+        let ciphers = this.vault.Ciphers;
+        for (let i = 0; i < ciphers.length; i++) {
+            if (id === ciphers[i].id) {
+                ciphers.pop(i);
+                bSuccess = true;
+            }
+        }
+
+        await this.saveVault();
+        return bSuccess;
+    }
+
+    async putDeleteCipher(id: string) {
+        console.log('ipfs.putDeleteCipher: ', id);
+
+        let bSuccess: boolean = false;
+        let ciphers = this.vault.Ciphers;
+        for (let i = 0; i < ciphers.length; i++) {
+            if (id === ciphers[i].id) {
+                ciphers[i].deletedDate = new Date().toISOString();
+                bSuccess = true;
+            }
+        }
+
+        await this.saveVault();
+        return bSuccess;
+    }
+
+    async putRestoreCipher(id: string) {
+        console.log('ipfs.putRestoreCipher: ', id);
+
+        let the_i: number;
+        let ciphers = this.vault.Ciphers;
+        for (let i: number = 0; i < ciphers.length; i++) {
+            if (id === ciphers[i].id) {
+                ciphers[i].deletedDate = null;
+                ciphers[i].revisionDate = new Date().toISOString();
+                the_i = i;
+            }
+        }
+
+        await this.saveVault();
+        return ciphers[the_i];
+    }
 
     async postFolder(r: any) {
         console.log('ipfs.postFolder: ', r);
